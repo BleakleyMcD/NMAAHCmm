@@ -96,21 +96,40 @@ case "$reelnumber" in
 	#find the .wav and .mov files and rename them according to NMAAHC naming structures
 	printf "%sRenaming files in %s%s\n" "$biwhite" "$color_off" "$destination"
 	echo
-	if [[ -d "$aud" ]] ; then
-		find "$aud" -name "*.wav" -exec mv -i "{}" "$aud"/"$dpxid"_AUD.wav \;
-		wav="$aud"/"$dpxid"_AUD.wav
-		printf "\n\t%sRenamed audio file to %s%s\n" "$biwhite" "$wav" "$color_off"
+	for aud in "$input"/*Audio ; do
+		if [[ ! -f "$aud"/"*.wav" ]] ; then
+			printf "\n\t%sNo .wav file found.%s\n" "$biwhite" "$color_off"
+			echo
+		else
+			while [[ -f "$aud"/"*.wav" ]] ; do
+				find "$aud" -name "*.wav" -exec mv -i "{}" "$aud"/"$dpxid"_AUD.wav \; &&
+				wav="$aud"/"$dpxid"_AUD.wav &&
+				printf "\n\t%sRenamed audio file to %s%s\n" "$biwhite" "$wav" "$color_off"
+				echo
+			done
+		fi
+	done
+	#if [[ -d "$aud" ]] ; then
+	#	if [[ -f "$aud"/"*.wav" ]] ; then
+	#		find "$aud" -name "*.wav" -exec mv -i "{}" "$aud"/"$dpxid"_AUD.wav \;
+	#		wav="$aud"/"$dpxid"_AUD.wav
+	#		printf "\n\t%sRenamed audio file to %s%s\n" "$biwhite" "$wav" "$color_off"
+	#	fi
+	#fi
+	if [[ -d "$der" ]] ; then
+		if [[ -f "$der"/"*ProRes*.mov" ]] ; then
+			find "$der" -name "*ProRes*.mov" -exec mv -i "{}" "$der"/"$dpxid"_DER_01.mov \;
+			der1="$der"/"$dpxid"_DER_01.mov
+			printf "\n\t%sRenamed ProRes file to %s%s\n" "$biwhite" "$der1" "$color_off"
+		fi
 	fi
 	if [[ -d "$der" ]] ; then
-		find "$der" -name "*ProRes*.mov" -exec mv -i "{}" "$der"/"$dpxid"_DER_01.mov \;
-		der1="$der"/"$dpxid"_DER_01.mov
-		printf "\n\t%sRenamed ProRes file to %s%s\n" "$biwhite" "$der1" "$color_off"
+		if [[ -f "$der"/"*Uncompressed.mov" ]] ; then
+			find "$der" -name "*Uncompressed.mov" -exec mv -i "{}" "$der"/"$dpxid"_DER_02.mov \;
+			der2="$der"/"$dpxid"_DER_02.mov
+			printf "\n\t%sRenamed uncompressed file to %s%s\n" "$biwhite" "$der2" "$color_off"
+			echo
 		fi
-	if [[ -d "$der" ]] ; then
-		find "$der" -name "*Uncompressed.mov" -exec mv -i "{}" "$der"/"$dpxid"_DER_02.mov \;
-		der2="$der"/"$dpxid"_DER_02.mov
-		printf "\n\t%sRenamed uncompressed file to %s%s\n" "$biwhite" "$der2" "$color_off"
-		echo
 	fi
 	#remove the $input directory
 	printf "%sRemoving:\n\t%s%s\n" "$biwhite" "$color_off" "$input"
@@ -160,7 +179,8 @@ case "$reelnumber" in
 		exit 1
 	fi
 	if [ -d "$dpxR1" ] ; then
-		find "$input" -name "*R1*.dpx" -exec mv -vi {} "$dpxR1" \;
+		printf "\n\t%sFound DPX directory.\n\tRenaming to:\n\t%s%s\n" "$biwhite" "$dpxdir" "$color_off" &&
+		find "$input" -type d -name "*DPX" -exec mv -i {} "$dpxR1" \;
 	else
 		printf "%sMissing $dpxR1%s" "$bired" "$color_off"
 		exit 1
@@ -179,7 +199,8 @@ case "$reelnumber" in
 		exit 1
 	fi
 	if [ -d "$dpxR2" ] ; then
-		find "$input" -name "*R2*.dpx" -exec mv -vi {} "$dpxR2" \;
+		printf "\n\t%sFound DPX directory.\n\tRenaming to:\n\t%s%s\n" "$biwhite" "$dpxdir" "$color_off" &&
+		find "$input" -type d -name "*DPX" -exec mv -i {} "$dpxR2" \;
 	else
 		printf "%sMissing $dpxR2%s" "$bired" "$color_off"
 		exit 1
